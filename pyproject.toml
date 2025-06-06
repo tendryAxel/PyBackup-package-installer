@@ -1,7 +1,18 @@
 [project]
-name = "pybackup-package-installer"
+name = "pybackup"
 version = "0.1.0"
-description = "Add your description here"
+description = "Librairie pour gérer des backups avec rdiff-backup"
+authors = [{ name = "tendryAxel" }]
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
