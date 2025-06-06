@@ -5,7 +5,9 @@ description = "Librairie pour gérer des backups avec rdiff-backup"
 authors = [{ name = "tendryAxel" }]
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "rdiff-backup>=2.2.6",
+]
 
 [build-system]
 requires = ["setuptools>=61"]
@@ -20,6 +22,8 @@ where = ["src"]
 [dependency-groups]
 dev = [
     "pytest>=8.4.0",
+    "pytest-emoji>=0.2.0",
+    "pytest-md>=0.2.0",
 ]
 
 [tool.pytest.ini_options]
