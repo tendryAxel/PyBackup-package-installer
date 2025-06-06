@@ -15,9 +15,9 @@ class RdiffBackupManager:
         self.rdiff_path = rdiff_path
 
     def _run_command(
-            self,
-            args: List[str],
-            progress_callback: Optional[Callable[[float, str], None]] = None
+        self,
+        args: List[str],
+        progress_callback: Optional[Callable[[float, str], None]] = None,
     ) -> Tuple[bool, str]:
         """
         Exécute une commande rdiff-backup avec capture de la progression.
@@ -33,13 +33,13 @@ class RdiffBackupManager:
             [self.rdiff_path] + args,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            universal_newlines=True
+            universal_newlines=True,
         )
 
         output = []
         while True:
             line = process.stdout.readline()
-            if line == '' and process.poll() is not None:
+            if line == "" and process.poll() is not None:
                 break
             if line:
                 output.append(line)
@@ -48,25 +48,25 @@ class RdiffBackupManager:
                     if progress is not None:
                         progress_callback(progress, line.strip())
 
-        return process.returncode == 0, ''.join(output)
+        return process.returncode == 0, "".join(output)
 
     @staticmethod
     def _parse_progress(line: str) -> Optional[float]:
         """
         Extrait la progression d'une ligne de sortie.
         """
-        match = re.search(r'(\d+\.\d+)%', line)
+        match = re.search(r"(\d+\.\d+)%", line)
         return float(match.group(1)) if match else None
 
     def backup(
-            self,
-            source: str,
-            dest: str,
-            exclude: Optional[List[str]] = None,
-            include: Optional[List[str]] = None,
-            force: bool = False,
-            verbosity: int = 3,
-            progress_callback: Optional[Callable[[float, str], None]] = None
+        self,
+        source: str,
+        dest: str,
+        exclude: Optional[List[str]] = None,
+        include: Optional[List[str]] = None,
+        force: bool = False,
+        verbosity: int = 3,
+        progress_callback: Optional[Callable[[float, str], None]] = None,
     ) -> Tuple[bool, str]:
         """
         Effectue une sauvegarde incrémentielle.
@@ -96,22 +96,18 @@ class RdiffBackupManager:
             for pattern in include:
                 args.extend(["--include", pattern])
 
-        args.extend([
-            "--verbosity", str(verbosity),
-            source,
-            dest
-        ])
+        args.extend(["--verbosity", str(verbosity), source, dest])
 
         return self._run_command(args, progress_callback)
 
     def restore(
-            self,
-            backup_path: str,
-            dest: str,
-            restore_time: str = "now",
-            force: bool = False,
-            verbosity: int = 3,
-            progress_callback: Optional[Callable[[float, str], None]] = None
+        self,
+        backup_path: str,
+        dest: str,
+        restore_time: str = "now",
+        force: bool = False,
+        verbosity: int = 3,
+        progress_callback: Optional[Callable[[float, str], None]] = None,
     ) -> Tuple[bool, str]:
         """
         Restaure une sauvegarde.
@@ -127,10 +123,7 @@ class RdiffBackupManager:
         Returns:
             Tuple (succès, sortie)
         """
-        args = [
-            "--restore-as-of", restore_time,
-            "--verbosity", str(verbosity)
-        ]
+        args = ["--restore-as-of", restore_time, "--verbosity", str(verbosity)]
 
         if force:
             args.append("--force")
@@ -140,9 +133,7 @@ class RdiffBackupManager:
         return self._run_command(args, progress_callback)
 
     def list_increments(
-            self,
-            backup_path: str,
-            verbosity: int = 3
+        self, backup_path: str, verbosity: int = 3
     ) -> Tuple[bool, List[Tuple[str, str]]]:
         """
         Liste les points de restauration disponibles.
@@ -154,11 +145,9 @@ class RdiffBackupManager:
         Returns:
             Tuple (succès, liste de (date, type))
         """
-        success, output = self._run_command([
-            "--list-increments",
-            "--verbosity", str(verbosity),
-            backup_path
-        ])
+        success, output = self._run_command(
+            ["--list-increments", "--verbosity", str(verbosity), backup_path]
+        )
 
         if not success:
             return False, []
@@ -166,22 +155,22 @@ class RdiffBackupManager:
         # Parse la sortie
         increments = []
         for line in output.splitlines():
-            if line.strip() and not line.startswith('['):
+            if line.strip() and not line.startswith("["):
                 parts = line.split()
                 if len(parts) >= 2:
-                    increments.append((parts[0], ' '.join(parts[1:])))
+                    increments.append((parts[0], " ".join(parts[1:])))
 
         return True, increments
 
 
 # Exemple d'utilisation
 if __name__ == "__main__":
+
     def print_progress(progress: float, message: str):
         sys.stdout.write(f"\rProgression: {progress:.1f}% - {message}")
         sys.stdout.flush()
         if progress >= 100:
             print()
-
 
     manager = RdiffBackupManager()
 
@@ -191,7 +180,7 @@ if __name__ == "__main__":
         source="/chemin/vers/source",
         dest="/chemin/vers/backup",
         exclude=["*.tmp", "/chemin/vers/source/logs"],
-        progress_callback=print_progress
+        progress_callback=print_progress,
     )
 
     if success:
@@ -213,7 +202,7 @@ if __name__ == "__main__":
         backup_path="/chemin/vers/backup",
         dest="/chemin/vers/restauration",
         restore_time="3D",  # Il y a 3 jours
-        progress_callback=print_progress
+        progress_callback=print_progress,
     )
 
     if success:
