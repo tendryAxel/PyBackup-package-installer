@@ -1,2 +1,4 @@
 .venv/
 .idea/
+pybackup.egg-info/
+uv.lock
