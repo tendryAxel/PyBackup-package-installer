@@ -3,6 +3,8 @@ import re
 import sys
 from typing import List, Tuple, Optional, Callable
 
+from pybackup.type import Increment, parse_increments
+
 
 class RdiffBackupManager:
     def __init__(self, rdiff_path: str = "rdiff-backup"):
@@ -132,9 +134,7 @@ class RdiffBackupManager:
 
         return self._run_command(args, progress_callback)
 
-    def list_increments(
-        self, backup_path: str, verbosity: int = 3
-    ) -> Tuple[bool, List[Tuple[str, str]]]:
+    def list_increments(self, backup_path: str) -> Tuple[bool, List[Increment]]:
         """
         Liste les points de restauration disponibles.
 
@@ -143,24 +143,16 @@ class RdiffBackupManager:
             verbosity: Niveau de verbosité
 
         Returns:
-            Tuple (succès, liste de (date, type))
+            Increments
         """
         success, output = self._run_command(
-            ["--list-increments", "--verbosity", str(verbosity), backup_path]
+            ["list", "increments", "--size", backup_path]
         )
 
         if not success:
             return False, []
 
-        # Parse la sortie
-        increments = []
-        for line in output.splitlines():
-            if line.strip() and not line.startswith("["):
-                parts = line.split()
-                if len(parts) >= 2:
-                    increments.append((parts[0], " ".join(parts[1:])))
-
-        return True, increments
+        return True, parse_increments(output)
 
 
 # Exemple d'utilisation
@@ -193,8 +185,8 @@ if __name__ == "__main__":
     print("\nListe des points de restauration:")
     success, increments = manager.list_increments("/chemin/vers/backup")
     if success:
-        for date, inc_type in increments:
-            print(f"{date}: {inc_type}")
+        for increments in increments:
+            print(f"{increments}")
 
     # Exemple de restauration
     print("\nDébut de la restauration...")
