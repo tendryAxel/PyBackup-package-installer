@@ -1,6 +1,6 @@
 [project]
 name = "pybackup"
-version = "0.1.1"
+version = "0.1.2"
 description = "Librairie pour gérer des backups avec rdiff-backup"
 authors = [{ name = "tendryAxel" }]
 readme = "README.md"
