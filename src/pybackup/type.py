@@ -2,6 +2,8 @@ import re
 from datetime import datetime
 from typing import List
 
+from pybackup.utils import TemporarySetLocal
+
 
 class Increment:
     def __init__(self, time: datetime, size: int, cumulative_size: int):
@@ -22,6 +24,7 @@ class Increment:
         )
 
 
+# Todo: handle empty backup target location
 def parse_increments(text: str) -> List[Increment]:
     lines = text.strip().split("\n")
     increments = []
@@ -37,7 +40,8 @@ def parse_increments(text: str) -> List[Increment]:
         )
         if match:
             time_str, size_str, cum_size_str = match.groups()
-            dt = datetime.strptime(time_str, "%a %b %d %H:%M:%S %Y")
+            with TemporarySetLocal():
+                dt = datetime.strptime(time_str, "%a %b %d %H:%M:%S %Y")
             increments.append(Increment(dt, int(size_str), int(cum_size_str)))
 
     return increments
