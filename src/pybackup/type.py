@@ -71,11 +71,14 @@ def parse_increments(text: str) -> List[Increment]:
             continue  # Skip headers and separators
 
         # Match line using regex
+        bytes_unite_string_matcher = (
+            r"bytes|B|KB|MB|GB|TB|kilobytes|megabytes|gigabytes|terabytes"
+        )
+        size_matcher = rf"(\d+[.,]?\d*)\s*({bytes_unite_string_matcher})"
         match = re.match(
             (
                 r"(\w{3} \w{3}\s+\d+ \d{2}:\d{2}:\d{2} \d{4})\s+"  # Date
-                r"(\d+)\s*(bytes|B|KB|MB|GB|TB|kilobytes|megabytes|gigabytes|terabytes)?\s+"  # Size
-                r"(\d+)\s*(bytes|B|KB|MB|GB|TB|kilobytes|megabytes|gigabytes|terabytes)?"  # Cumulative size
+                rf"{size_matcher}?\s+" + size_matcher  # Size  # Cumulative size
             ),
             line,
             re.IGNORECASE,
