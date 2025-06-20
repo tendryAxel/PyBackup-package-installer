@@ -1,8 +1,10 @@
+import os
 import subprocess
 import re
 import sys
 from typing import List, Tuple, Optional, Callable
 
+from pybackup.exceptions import RDiffRuntimeError, EmptyBackupTargetException
 from pybackup.type import Increment, parse_increments
 
 
@@ -45,6 +47,8 @@ class RdiffBackupManager:
                 break
             if line:
                 output.append(line)
+                if "ERROR: Action list failed on step check" in line:
+                    raise RDiffRuntimeError()
                 if progress_callback:
                     progress = self._parse_progress(line)
                     if progress is not None:
@@ -145,14 +149,21 @@ class RdiffBackupManager:
         Returns:
             Increments
         """
-        success, output = self._run_command(
-            ["list", "increments", "--size", backup_path]
-        )
+        try:
+            success, output = self._run_command(
+                ["list", "increments", "--size", backup_path]
+            )
 
-        if not success:
-            return False, []
+            if not success:
+                return False, []
 
-        return True, parse_increments(output)
+            return True, parse_increments(output)
+        except RDiffRuntimeError as e:
+            # if the function don't run and the folder is empty, it means that it's possibly an empty backup folder
+            if len(os.listdir(backup_path)) == 0:
+                return True, []
+            print(e)
+            raise EmptyBackupTargetException()
 
 
 # Exemple d'utilisation
