@@ -62,7 +62,6 @@ class Increment:
         )
 
 
-# Todo: handle empty backup target location
 def parse_increments(text: str) -> List[Increment]:
     lines = text.strip().split("\n")
     increments = []
